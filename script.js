@@ -50,3 +50,37 @@ function calculateKV() {
 
     document.getElementById('kv-output').innerText = kv.toFixed(2);
 }
+
+function calculateSpeed() {
+    const kv = parseFloat(document.getElementById('reverse-kv').value);
+    const voltage = parseFloat(document.getElementById('reverse-voltage').value);
+    const wheelSize = parseFloat(document.getElementById('reverse-wheel-size').value);
+    const unitType = document.getElementById('reverse-unit-type').value;
+
+    if (isNaN(kv) || isNaN(voltage)) {
+        alert('Please enter valid numbers for kV and voltage.');
+        return;
+    }
+
+    const rpm = kv * voltage;
+    document.getElementById('rpm-output').innerText = rpm.toFixed(2);
+
+    // If wheel size is missing, only output RPM and skip speed calculation
+    if (isNaN(wheelSize)) {
+        document.getElementById('speed-output').innerText = "N/A (Wheel size required)";
+        return;
+    }
+
+    let wheelSizeInMeters = 0;
+    if (unitType === 'inches') {
+        wheelSizeInMeters = wheelSize * 0.0254;
+    } else {
+        wheelSizeInMeters = wheelSize / 1000;
+    }
+
+    const wheelCircumference = Math.PI * wheelSizeInMeters;
+    const speed = (rpm * wheelCircumference * 60) / 1000;
+
+    document.getElementById('speed-output').innerText = speed.toFixed(2);
+}
+

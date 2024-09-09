@@ -13,7 +13,10 @@
         <div class="header">
             <h1>Motor kV Calculator</h1>
         </div>
-        <div class="calculator">
+        
+        <!-- Normal kV Calculator -->
+        <div class="calculator-section">
+            <h2>kV Calculation</h2>
             <label for="voltage">Voltage (V)</label>
             <input type="text" id="voltage" placeholder="Enter voltage during measurement" oninput="replaceCommas(this)">
 
@@ -38,6 +41,33 @@
 
             <div id="output">
                 <h3>Calculated kV: <span id="kv-output"></span></h3>
+            </div>
+        </div>
+
+        <!-- Reverse kV Calculator -->
+        <div class="calculator-section">
+            <h2>Reverse kV Calculation</h2>
+            <label for="reverse-kv">kV (RPM per Volt)</label>
+            <input type="text" id="reverse-kv" placeholder="Enter motor kV" oninput="replaceCommas(this)">
+
+            <label for="reverse-voltage">Voltage (V)</label>
+            <input type="text" id="reverse-voltage" placeholder="Enter voltage" oninput="replaceCommas(this)">
+
+            <div id="reverse-wheel-size-section">
+                <label for="reverse-wheel-size">Wheel Size</label>
+                <input type="text" id="reverse-wheel-size" placeholder="Enter wheel size" oninput="replaceCommas(this)">
+                <label for="reverse-unit-type">Wheel Size Unit</label>
+                <select id="reverse-unit-type">
+                    <option value="inches" selected>Inches</option>
+                    <option value="mm">mm</option>
+                </select>
+            </div>
+
+            <button onclick="calculateSpeed()">Calculate Speed & RPM</button>
+
+            <div id="reverse-output">
+                <h3>Calculated Speed: <span id="speed-output"></span> km/h</h3>
+                <h3>Calculated RPM: <span id="rpm-output"></span></h3>
             </div>
         </div>
     </div>
