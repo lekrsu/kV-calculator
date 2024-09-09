@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Motor kV Calculator">
+    <title>Motor kV Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <div class="header">
+            <h1>Motor kV Calculator</h1>
+        </div>
+        <div class="calculator">
+            <label for="voltage">Voltage (V)</label>
+            <input type="text" id="voltage" placeholder="Enter voltage during measurement" oninput="replaceCommas(this)">
+
+            <label for="speed">Speed (km/h or RPM)</label>
+            <select id="speed-type" onchange="toggleWheelInput()">
+                <option value="kmh" selected>km/h</option>
+                <option value="rpm">RPM</option>
+            </select>
+            <input type="text" id="speed" placeholder="Enter speed" oninput="replaceCommas(this)">
+
+            <div id="wheel-size-section">
+                <label for="wheel-size">Wheel Size</label>
+                <input type="text" id="wheel-size" placeholder="Enter wheel size" oninput="replaceCommas(this)">
+                <label for="unit-type">Wheel Size Unit</label>
+                <select id="unit-type">
+                    <option value="inches" selected>Inches</option>
+                    <option value="mm">mm</option>
+                </select>
+            </div>
+
+            <button onclick="calculateKV()">Calculate kV</button>
+
+            <div id="output">
+                <h3>Calculated kV: <span id="kv-output"></span></h3>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
