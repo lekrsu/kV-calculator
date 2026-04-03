@@ -360,19 +360,19 @@ select option { background: #252529; }
 
       <div class="field">
         <label>Voltage (V)</label>
-        <input type="text" id="voltage" placeholder="e.g. 42" oninput="replaceCommas(this)">
+        <input type="text" id="voltage" placeholder="e.g. 72" oninput="replaceCommas(this)">
       </div>
 
       <div class="field">
         <label id="speed-label">Speed (km/h)</label>
-        <input type="text" id="speed" placeholder="e.g. 35" oninput="replaceCommas(this)">
+        <input type="text" id="speed" placeholder="e.g. 60" oninput="replaceCommas(this)">
       </div>
 
       <div id="wheel-size-section">
         <div class="row2">
           <div class="field">
             <label>Wheel Diameter</label>
-            <input type="text" id="wheel-size" placeholder="e.g. 97" oninput="replaceCommas(this)">
+            <input type="text" id="wheel-size" placeholder="e.g. 255" oninput="replaceCommas(this)">
           </div>
           <div class="field">
             <label>Unit</label>
@@ -404,18 +404,18 @@ select option { background: #252529; }
       <div class="row2">
         <div class="field">
           <label>KV (RPM/V)</label>
-          <input type="text" id="reverse-kv" placeholder="e.g. 190" oninput="replaceCommas(this)">
+          <input type="text" id="reverse-kv" placeholder="e.g. 20" oninput="replaceCommas(this)">
         </div>
         <div class="field">
           <label>Voltage (V)</label>
-          <input type="text" id="reverse-voltage" placeholder="e.g. 42" oninput="replaceCommas(this)">
+          <input type="text" id="reverse-voltage" placeholder="e.g. 72" oninput="replaceCommas(this)">
         </div>
       </div>
 
       <div class="row2">
         <div class="field">
           <label>Wheel Ø <span style="opacity:.5;font-size:8px">(optional)</span></label>
-          <input type="text" id="reverse-wheel-size" placeholder="e.g. 97" oninput="replaceCommas(this)">
+          <input type="text" id="reverse-wheel-size" placeholder="e.g. 255" oninput="replaceCommas(this)">
         </div>
         <div class="field">
           <label>Unit</label>
@@ -454,9 +454,9 @@ select option { background: #252529; }
       <div class="chart-title">Speed vs Voltage</div>
       <div class="chart-inputs">
         <label>KV</label>
-        <input type="text" id="chart-kv" placeholder="190" oninput="replaceCommas(this)">
-        <label>Wheel Ø</label>
-        <input type="text" id="chart-wheel" placeholder="97" oninput="replaceCommas(this)">
+        <input type="text" id="chart-kv" placeholder="20" oninput="replaceCommas(this)">
+        <label>diameter</label>
+        <input type="text" id="chart-wheel" placeholder="255" oninput="replaceCommas(this)">
         <select id="chart-unit">
           <option value="mm">mm</option>
           <option value="inches">in</option>
