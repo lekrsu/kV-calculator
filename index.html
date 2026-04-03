@@ -1,77 +1,727 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Motor kV Calculator">
-    <title>Motor kV Calculator</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KV CALC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:       #161618;
+  --panel:    #1e1e22;
+  --border:   #2e2e34;
+  --accent:   #b794f4;   
+  --accent2:  #9f7aea;   
+  --text:     #f0f0f0;
+  --muted:    #888;
+  --muted2:   #555;
+  --input-bg: #252529;
+  --res-bg:   #252529;
+  --res-fg:   #ffffff;
+  --res-dim:  rgba(255,255,255,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; }
+body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 13px 24px;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  background: var(--panel);
+  flex-shrink: 0;
+}
+header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 5px;
+  color: var(--accent);
+  text-shadow: 0 0 16px rgba(183, 148, 244, 0.3);
+  line-height: 1;
+}
+header p {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: row;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 330px;
+  min-width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+/* ── CHART AREA ── */
+.chart-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ── RESPONSIVE: Stack on mobile ── */
+@media (max-width: 768px) {
+  .body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .chart-area {
+    min-height: 400px;
+  }
+  .chart-body {
+    min-height: 340px;
+  }
+}
+
+.calc-panel {
+  padding: 18px 20px;
+  flex-shrink: 0;
+}
+.calc-panel + .calc-panel {
+  border-top: 1px solid var(--border);
+}
+
+.chart-header {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.chart-body {
+  flex: 1;
+  padding: 16px 18px;
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.chart-body canvas { 
+  flex: 1; 
+  min-height: 0; 
+  width: 100% !important; 
+  height: 100% !important;
+}
+
+.panel-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-title::before {
+  content: '';
+  width: 3px;
+  height: 13px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.field { margin-bottom: 10px; }
+
+label {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  padding: 7px 10px;
+  outline: none;
+  border-radius: 2px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input[type="text"]:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(183, 148, 244, 0.1);
+}
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+select option { background: #252529; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.calc-btn {
+  width: 100%;
+  background: var(--accent);
+  border: none;
+  color: #000;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 3px;
+  padding: 9px;
+  cursor: pointer;
+  border-radius: 2px;
+  margin-top: 2px;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.calc-btn:hover  { background: var(--accent2); box-shadow: 0 0 10px rgba(159, 122, 234, 0.35); }
+.calc-btn:active { transform: scale(0.99); }
+
+.result-box {
+  margin-top: 12px;
+  background: var(--res-bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  gap: 8px;
+}
+.result-row + .result-row { border-top: 1px solid var(--border); }
+
+.result-label {
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.result-val-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+.result-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: 1px;
+  color: var(--res-dim);
+  transition: color 0.2s;
+  line-height: 1;
+}
+.result-value.filled { color: var(--res-fg); }
+.result-unit {
+  color: var(--muted2);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.chart-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.chart-title::before {
+  content: '';
+  width: 3px;
+  height: 13px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.chart-inputs {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.chart-inputs label { margin-bottom: 0; white-space: nowrap; }
+.chart-inputs input[type="text"] { width: 68px; font-size: 12px; padding: 5px 8px; }
+.chart-inputs select  { width: auto; font-size: 12px; padding: 5px 24px 5px 8px; }
+
+.btn-chart {
+  background: var(--accent);
+  border: none;
+  color: #000;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 2px;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.btn-chart:hover { background: var(--accent2); }
+.btn-chart.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.btn-chart.ghost:hover { border-color: var(--muted); color: var(--text); background: transparent; }
+
+.chart-placeholder {
+  position: absolute;
+  inset: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted2);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  gap: 10px;
+  pointer-events: none;
+}
+.chart-placeholder svg { opacity: 0.15; }
+
+.hidden { display: none !important; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-5px); }
+  40%     { transform: translateX(5px); }
+  60%     { transform: translateX(-3px); }
+  80%     { transform: translateX(3px); }
+}
+.shaking { animation: shake 0.28s ease; }
+</style>
 </head>
-<body class="dark-mode">
-    <div class="container">
-        <div class="header">
-            <h1>Motor kV Calculator</h1>
-        </div>
-        
-        <!-- Normal kV Calculator -->
-        <div class="calculator-section">
-            <h2>kV Calculation</h2>
-            <label for="voltage">Voltage (V)</label>
-            <input type="text" id="voltage" placeholder="Enter voltage during measurement" oninput="replaceCommas(this)">
+<body>
 
-            <label for="speed">Speed (km/h or RPM)</label>
-            <select id="speed-type" onchange="toggleWheelInput()">
-                <option value="kmh" selected>km/h</option>
-                <option value="rpm">RPM</option>
+<header>
+  <h1>KV CALC</h1>
+  <p>Motor · Speed · Wheel</p>
+</header>
+
+<div class="body">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Find KV -->
+    <div class="calc-panel">
+      <div class="panel-title">Find KV</div>
+
+      <div class="field">
+        <label>Input Type</label>
+        <select id="speed-type" onchange="toggleWheelInput()">
+          <option value="kmh" selected>Speed (km/h)</option>
+          <option value="rpm">RPM</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Voltage (V)</label>
+        <input type="text" id="voltage" placeholder="e.g. 42" oninput="replaceCommas(this)">
+      </div>
+
+      <div class="field">
+        <label id="speed-label">Speed (km/h)</label>
+        <input type="text" id="speed" placeholder="e.g. 35" oninput="replaceCommas(this)">
+      </div>
+
+      <div id="wheel-size-section">
+        <div class="row2">
+          <div class="field">
+            <label>Wheel Diameter</label>
+            <input type="text" id="wheel-size" placeholder="e.g. 97" oninput="replaceCommas(this)">
+          </div>
+          <div class="field">
+            <label>Unit</label>
+            <select id="unit-type">
+              <option value="mm">mm</option>
+              <option value="inches">inches</option>
             </select>
-            <input type="text" id="speed" placeholder="Enter speed" oninput="replaceCommas(this)">
-
-            <div id="wheel-size-section">
-                <label for="wheel-size">Wheel Size</label>
-                <input type="text" id="wheel-size" placeholder="Enter wheel size" oninput="replaceCommas(this)">
-                <label for="unit-type">Wheel Size Unit</label>
-                <select id="unit-type">
-                    <option value="inches" selected>Inches</option>
-                    <option value="mm">mm</option>
-                </select>
-            </div>
-
-            <button onclick="calculateKV()">Calculate kV</button>
-
-            <div id="output">
-                <h3>Calculated kV: <span id="kv-output"></span></h3>
-            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Reverse kV Calculator -->
-        <div class="calculator-section">
-            <h2>Reverse kV Calculation</h2>
-            <label for="reverse-kv">kV (RPM per Volt)</label>
-            <input type="text" id="reverse-kv" placeholder="Enter motor kV" oninput="replaceCommas(this)">
+      <button class="calc-btn" onclick="calculateKV()">Calculate KV</button>
 
-            <label for="reverse-voltage">Voltage (V)</label>
-            <input type="text" id="reverse-voltage" placeholder="Enter voltage" oninput="replaceCommas(this)">
-
-            <div id="reverse-wheel-size-section">
-                <label for="reverse-wheel-size">Wheel Size</label>
-                <input type="text" id="reverse-wheel-size" placeholder="Enter wheel size" oninput="replaceCommas(this)">
-                <label for="reverse-unit-type">Wheel Size Unit</label>
-                <select id="reverse-unit-type">
-                    <option value="inches" selected>Inches</option>
-                    <option value="mm">mm</option>
-                </select>
-            </div>
-
-            <button onclick="calculateSpeed()">Calculate Speed & RPM</button>
-
-            <div id="reverse-output">
-                <h3>Calculated Speed: <span id="speed-output"></span> km/h</h3>
-                <h3>Calculated RPM: <span id="rpm-output"></span></h3>
-            </div>
+      <div class="result-box">
+        <div class="result-row">
+          <span class="result-label">KV Rating</span>
+          <div class="result-val-wrap">
+            <span class="result-value" id="kv-output">000.00</span>
+            <span class="result-unit">RPM/V</span>
+          </div>
         </div>
+      </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Find Speed -->
+    <div class="calc-panel">
+      <div class="panel-title">Find Speed</div>
+
+      <div class="row2">
+        <div class="field">
+          <label>KV (RPM/V)</label>
+          <input type="text" id="reverse-kv" placeholder="e.g. 190" oninput="replaceCommas(this)">
+        </div>
+        <div class="field">
+          <label>Voltage (V)</label>
+          <input type="text" id="reverse-voltage" placeholder="e.g. 42" oninput="replaceCommas(this)">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Wheel Ø <span style="opacity:.5;font-size:8px">(optional)</span></label>
+          <input type="text" id="reverse-wheel-size" placeholder="e.g. 97" oninput="replaceCommas(this)">
+        </div>
+        <div class="field">
+          <label>Unit</label>
+          <select id="reverse-unit-type">
+            <option value="mm">mm</option>
+            <option value="inches">inches</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="calculateSpeed()">Calculate Speed</button>
+
+      <div class="result-box">
+        <div class="result-row">
+          <span class="result-label">Motor RPM</span>
+          <div class="result-val-wrap">
+            <span class="result-value" id="rpm-output">00000</span>
+            <span class="result-unit">RPM</span>
+          </div>
+        </div>
+        <div class="result-row" id="speed-result-row">
+          <span class="result-label">Top Speed</span>
+          <div class="result-val-wrap">
+            <span class="result-value" id="speed-output">00.0</span>
+            <span class="result-unit">km/h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-area">
+    <div class="chart-header">
+      <div class="chart-title">Speed vs Voltage</div>
+      <div class="chart-inputs">
+        <label>KV</label>
+        <input type="text" id="chart-kv" placeholder="190" oninput="replaceCommas(this)">
+        <label>Wheel Ø</label>
+        <input type="text" id="chart-wheel" placeholder="97" oninput="replaceCommas(this)">
+        <select id="chart-unit">
+          <option value="mm">mm</option>
+          <option value="inches">in</option>
+        </select>
+        <button class="btn-chart" onclick="plotChart()">Plot</button>
+        <button class="btn-chart ghost" onclick="addCurve()">+ Curve</button>
+        <button class="btn-chart ghost" onclick="clearChart()">Clear</button>
+      </div>
+    </div>
+
+    <div class="chart-body">
+      <div class="chart-placeholder" id="chart-placeholder">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        Enter KV + wheel size and hit Plot
+      </div>
+      <canvas id="speedChart" style="display:none"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- Updated Footer -->
+<footer>
+  KV CALC &nbsp;·&nbsp; <em>no-load speed</em>
+</footer>
+
+<script>
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function replaceCommas(el) {
+  el.value = el.value
+    .replace(/,/g, '.')
+    .replace(/[^0-9.]/g, '')
+    .replace(/(\..*?)\..*/g, '$1');
+}
+
+function wheelToMeters(size, unit) {
+  return unit === 'inches' ? size * 0.0254 : size / 1000;
+}
+
+function speedFromRpm(rpm, wheelM) {
+  return (rpm * Math.PI * wheelM * 60) / 1000;
+}
+
+function shake(el) {
+  if (typeof el === 'string') el = document.getElementById(el);
+  el.classList.remove('shaking');
+  void el.offsetWidth;
+  el.classList.add('shaking');
+  el.addEventListener('animationend', () => el.classList.remove('shaking'), { once: true });
+}
+
+function fillResult(id, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.classList.add('filled');
+}
+
+// ── TOGGLE ───────────────────────────────────────────────────────────────────
+function toggleWheelInput() {
+  const t = document.getElementById('speed-type').value;
+  document.getElementById('wheel-size-section').classList.toggle('hidden', t === 'rpm');
+  document.getElementById('speed-label').textContent = t === 'rpm' ? 'RPM' : 'Speed (km/h)';
+  document.getElementById('speed').placeholder = t === 'rpm' ? 'e.g. 50000' : 'e.g. 35';
+}
+
+// ── CALCULATE KV ─────────────────────────────────────────────────────────────
+function calculateKV() {
+  const voltage   = parseFloat(document.getElementById('voltage').value);
+  const speedVal  = parseFloat(document.getElementById('speed').value);
+  const speedType = document.getElementById('speed-type').value;
+
+  if (isNaN(voltage) || isNaN(speedVal)) {
+    shake(document.querySelectorAll('.calc-panel')[0]);
+    return;
+  }
+
+  let kv;
+  if (speedType === 'rpm') {
+    kv = speedVal / voltage;
+  } else {
+    const wheelSize = parseFloat(document.getElementById('wheel-size').value);
+    const unitType  = document.getElementById('unit-type').value;
+    if (isNaN(wheelSize)) {
+      shake(document.querySelectorAll('.calc-panel')[0]);
+      return;
+    }
+    const wheelM = wheelToMeters(wheelSize, unitType);
+    kv = (speedVal * 1000) / (60 * Math.PI * wheelM) / voltage;
+  }
+
+  fillResult('kv-output', kv.toFixed(2));
+
+  document.getElementById('chart-kv').value = kv.toFixed(2);
+  if (speedType !== 'rpm') {
+    document.getElementById('chart-wheel').value = document.getElementById('wheel-size').value;
+    document.getElementById('chart-unit').value = document.getElementById('unit-type').value;
+  }
+}
+
+// ── CALCULATE SPEED ──────────────────────────────────────────────────────────
+function calculateSpeed() {
+  const kv       = parseFloat(document.getElementById('reverse-kv').value);
+  const voltage  = parseFloat(document.getElementById('reverse-voltage').value);
+  const wheelRaw = parseFloat(document.getElementById('reverse-wheel-size').value);
+  const unitType = document.getElementById('reverse-unit-type').value;
+
+  if (isNaN(kv) || isNaN(voltage)) {
+    shake(document.querySelectorAll('.calc-panel')[1]);
+    return;
+  }
+
+  const rpm = kv * voltage;
+  fillResult('rpm-output', Math.round(rpm).toLocaleString());
+
+  const speedRow = document.getElementById('speed-result-row');
+  if (!isNaN(wheelRaw)) {
+    const wheelM = wheelToMeters(wheelRaw, unitType);
+    fillResult('speed-output', speedFromRpm(rpm, wheelM).toFixed(1));
+    speedRow.style.opacity = '1';
+  } else {
+    const el = document.getElementById('speed-output');
+    el.textContent = '—';
+    el.classList.remove('filled');
+    speedRow.style.opacity = '0.3';
+  }
+
+  document.getElementById('chart-kv').value = kv.toFixed(2);
+  if (!isNaN(wheelRaw)) {
+    document.getElementById('chart-wheel').value = wheelRaw;
+    document.getElementById('chart-unit').value = unitType;
+  }
+}
+
+// ── CHART ────────────────────────────────────────────────────────────────────
+let chartInstance = null;
+let colorIdx = 0;
+const REDS = ['#e53935','#ef9a9a','#b71c1c','#ff5722','#ff8a80','#c62828','#ff7043','#d32f2f','#bf360c','#ff6e40'];
+
+function buildCurve(kv, wheelM) {
+  const pts = [];
+  for (let i = 0; i <= 150; i += 2) {
+    const v = i;
+    const speed = speedFromRpm(kv * v, wheelM);
+    pts.push({ x: v, y: +speed.toFixed(2) });
+  }
+  return pts;
+}
+
+function makeDataset(kv, wheelM, fillMode) {
+  const color = REDS[colorIdx % REDS.length];
+  colorIdx++;
+
+  return {
+    label: `KV ${kv.toFixed(0)}`,
+    data: buildCurve(kv, wheelM),
+    borderColor: color,
+    backgroundColor: color + '40',
+    borderWidth: 2.5,
+    pointRadius: 0,
+    tension: 0.4,
+    fill: fillMode
+  };
+}
+
+function getChartInputs() {
+  const kv   = parseFloat(document.getElementById('chart-kv').value);
+  const size = parseFloat(document.getElementById('chart-wheel').value);
+  const unit = document.getElementById('chart-unit').value;
+  return { kv, size, unit, ok: !isNaN(kv) && !isNaN(size) };
+}
+
+function plotChart() {
+  const { kv, size, unit, ok } = getChartInputs();
+  if (!ok) {
+    shake(document.querySelector('.chart-header'));
+    return;
+  }
+  colorIdx = 0;
+  const wheelM = wheelToMeters(size, unit);
+  renderChart([makeDataset(kv, wheelM, 'origin')]);
+}
+
+function addCurve() {
+  const { kv, size, unit, ok } = getChartInputs();
+  if (!ok) {
+    shake(document.querySelector('.chart-header'));
+    return;
+  }
+
+  if (!chartInstance) {
+    plotChart();
+    return;
+  }
+
+  const wheelM = wheelToMeters(size, unit);
+  const ds = makeDataset(kv, wheelM, chartInstance.data.datasets.length - 1);
+  chartInstance.data.datasets.push(ds);
+  chartInstance.update();
+}
+
+function renderChart(datasets) {
+  document.getElementById('chart-placeholder').style.display = 'none';
+  const canvas = document.getElementById('speedChart');
+  canvas.style.display = 'block';
+
+  const ctx = canvas.getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 380, easing: 'easeOutQuart' },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: { color: '#888', font: { family: 'Space Mono', size: 11 }, boxWidth: 10, padding: 14 }
+        },
+        tooltip: {
+          backgroundColor: '#1e1e22',
+          borderColor: '#2e2e34',
+          borderWidth: 1,
+          titleColor: '#b794f4',
+          bodyColor: '#e0e0e0',
+          titleFont: { family: 'Bebas Neue', size: 14 },
+          bodyFont:  { family: 'Space Mono', size: 11 },
+          padding: 10,
+          callbacks: {
+            title: items => `${items[0].parsed.x.toFixed(1)} V`,
+            label: item  => ` ${item.dataset.label}: ${item.parsed.y.toFixed(1)} km/h`,
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          min: 0,
+          max: 150,
+          title: { display: true, text: 'Voltage (V)', color: '#666', font: { family: 'Space Mono', size: 11 } },
+          grid:  { color: '#202026' },
+          ticks: { color: '#555', font: { family: 'Space Mono', size: 10 }, stepSize: 10 }
+        },
+        y: {
+          title: { display: true, text: 'Speed (km/h)', color: '#666', font: { family: 'Space Mono', size: 11 } },
+          grid:  { color: '#202026' },
+          ticks: { color: '#555', font: { family: 'Space Mono', size: 10 } }
+        }
+      }
+    }
+  });
+}
+
+function clearChart() {
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
+  colorIdx = 0;
+  document.getElementById('speedChart').style.display = 'none';
+  document.getElementById('chart-placeholder').style.display = 'flex';
+}
+</script>
 </body>
 </html>
